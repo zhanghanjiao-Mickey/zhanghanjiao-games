@@ -1,192 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宠物连连看小游戏</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-        .container {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(8, 50px);
-            grid-gap: 5px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .tile {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #eee;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .tile img {
-            width: 40px;
-            height: 40px;
-        }
-        .hidden {
-            visibility: hidden;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>张涵姣的小游戏导航页</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: linear-gradient(to bottom, #ccc, #fff);
+        height: 100%;
+    }
+
+    .navbox {
+        float: left;
+        position: relative;
+    }
+
+    ul.nav {
+        list-style: none;
+        width: 200px;
+        position: relative;
+        top: 100px;
+        left: 100px;
+        padding: 60px 0;
+    }
+
+    ul.nav li {
+        margin: 5px 0;
+    }
+
+    ul.nav li a {
+        transition: all 0.3s ease-out;
+        background: #cbcbcb url(images/border.png) no-repeat;
+        color: #174867;
+        padding: 7px 15px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        display: block;
+        text-decoration: none;
+        box-shadow: 2px 2px 4px #888;
+    }
+
+    ul.nav li a:hover {
+        background: #ebebeb url(images/border.png) no-repeat;
+        color: #67a5cd;
+        padding-left: 30px;
+    }
+</style>
 </head>
 <body>
-    <div class="container" id="gameBoard"></div>
-    <canvas id="lineCanvas"></canvas>
 
-    <script>
-        const images = [
-            '🐶', '🐱', '🐭', '🐹', '🐰', '🦊',
-            '🐻', '🐼', '🐨', '🐯', '🦁', '🐮'
-        ];
+<div class="navbox">
+    <ul class="nav">
+        <li><a href="tile-matching/tile-matching.html">宠物连连看</a></li>
+        <li><a href="https://example.com">其他游戏</a></li>
+    </ul>
+</div>
 
-        let tiles = [...images, ...images, ...images, ...images];
-        tiles.sort(() => 0.5 - Math.random());
-
-        const gameBoard = document.getElementById('gameBoard');
-        const canvas = document.getElementById('lineCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = gameBoard.offsetWidth;
-        canvas.height = gameBoard.offsetHeight;
-
-        let selectedTiles = [];
-        let matchedPairs = 0;
-
-        tiles.forEach((image, index) => {
-            const tile = document.createElement('div');
-            tile.classList.add('tile');
-            tile.dataset.index = index;
-            tile.dataset.row = Math.floor(index / 8);
-            tile.dataset.col = index % 8;
-            tile.innerHTML = `<img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='18'>${image}</text></svg>" alt="Pet Image">`;
-            gameBoard.appendChild(tile);
-
-            tile.addEventListener('click', () => {
-                if (selectedTiles.length === 2 || tile.classList.contains('hidden')) return;
-
-                tile.classList.add('selected');
-                selectedTiles.push(tile);
-
-                if (selectedTiles.length === 2) {
-                    const [firstTile, secondTile] = selectedTiles;
-
-                    if (firstTile.innerHTML === secondTile.innerHTML) {
-                        const path = findPath(firstTile, secondTile);
-                        if (path) {
-                            drawPath(path);
-                            setTimeout(() => {
-                                firstTile.classList.add('hidden');
-                                secondTile.classList.add('hidden');
-                                matchedPairs++;
-                                if (matchedPairs === images.length) {
-                                    alert('恭喜你！你赢了！');
-                                }
-                            }, 500);
-                        }
-                    }
-
-                    setTimeout(() => {
-                        firstTile.classList.remove('selected');
-                        secondTile.classList.remove('selected');
-                        selectedTiles = [];
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    }, 500);
-                }
-            });
-        });
-
-        function findPath(tile1, tile2) {
-            const row1 = parseInt(tile1.dataset.row);
-            const col1 = parseInt(tile1.dataset.col);
-            const row2 = parseInt(tile2.dataset.row);
-            const col2 = parseInt(tile2.dataset.col);
-
-            let queue = [[row1, col1, -1, 0, []]]; // (row, col, direction, turnCount, path)
-            let visited = Array.from({ length: 8 }, () => Array(8).fill(false));
-            visited[row1][col1] = true;
-
-            while (queue.length > 0) {
-                let [row, col, dir, turnCount, path] = queue.shift();
-
-                if (row === row2 && col === col2) {
-                    return path;
-                }
-
-                // Directions: 0 - up, 1 - right, 2 - down, 3 - left
-                const directions = [
-                    [0, -1], // up
-                    [1, 0],  // right
-                    [0, 1],  // down
-                    [-1, 0]  // left
-                ];
-
-                for (let i = 0; i < 4; i++) {
-                    const [dr, dc] = directions[i];
-                    const newRow = row + dr;
-                    const newCol = col + dc;
-
-                    if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8 || visited[newRow][newCol]) {
-                        continue;
-                    }
-
-                    const newDir = i;
-                    const newTurnCount = (dir === -1 || dir === newDir) ? turnCount : turnCount + 1;
-
-                    if (newTurnCount <= 3 && (isCellEmpty(newRow, newCol) || (newRow === row2 && newCol === col2))) {
-                        visited[newRow][newCol] = true;
-                        queue.push([newRow, newCol, newDir, newTurnCount, [...path, [newRow, newCol]]]);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        function isCellEmpty(row, col) {
-            const index = row * 8 + col;
-            const tile = document.querySelector(`.tile[data-index='${index}']`);
-            return tile.classList.contains('hidden');
-        }
-
-        function drawPath(path) {
-            ctx.beginPath();
-            for (let i = 0; i < path.length - 1; i++) {
-                const [row1, col1] = path[i];
-                const [row2, col2] = path[i + 1];
-                const tile1 = document.querySelector(`.tile[data-row='${row1}'][data-col='${col1}']`);
-                const tile2 = document.querySelector(`.tile[data-row='${row2}'][data-col='${col2}']`);
-                const rect1 = tile1.getBoundingClientRect();
-                const rect2 = tile2.getBoundingClientRect();
-                const x1 = rect1.left + rect1.width / 2 - gameBoard.offsetLeft;
-                const y1 = rect1.top + rect1.height / 2 - gameBoard.offsetTop;
-                const x2 = rect2.left + rect2.width / 2 - gameBoard.offsetLeft;
-                const y2 = rect2.top + rect2.height / 2 - gameBoard.offsetTop;
-                if (i === 0) ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-            }
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-    </script>
 </body>
 </html>
