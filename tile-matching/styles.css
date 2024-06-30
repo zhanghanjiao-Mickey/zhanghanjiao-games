@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /*background-color: #f0f0f0;*/
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(14, 54px); /* 每行14个格子，每个格子50px宽 */
+    gap: 5px; /* 格子之间的间距 */
+}
+
+.tile {
+    width: 50px; /* 调整格子宽度 */
+    height: 50px; /* 调整格子高度 */
+    background-size: 100%; /* 让背景图片大小适应格子 */
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border: 2px solid #fff; /* 默认白色边框 */
+    transition: border-color 0.2s ease-in-out; /* 边框颜色变化过渡效果 */
+}
+
+.tile.selected {
+    border-color: #000; /* 选中时的黑色边框 */
+}
